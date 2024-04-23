@@ -8,7 +8,7 @@ marked.use({
   gfm: true,
 });
 // 读取 Markdown 文件
-const markdownContent = fs.readFileSync('2022数据库期中个人答卷.md', 'utf8');
+const markdownContent = fs.readFileSync('数据库原理.md', 'utf8');
 
 // 使用 marked 将 Markdown 转换为 HTML
 const htmlContent = marked(markdownContent);
@@ -29,4 +29,4 @@ ${htmlContent}
 `;
 
 // 将完整的 HTML 写入文件
-fs.writeFileSync('2022数据库期中个人答卷.html', htmlTemplate);
+fs.writeFileSync('数据库原理.html', htmlTemplate);

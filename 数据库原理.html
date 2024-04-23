@@ -343,6 +343,40 @@ where not exists(...)
 <p>定义$(t\times s)-\Pi_{R-S,S}(r)$</p>
 <p>由于MySQL真正使用的时候几乎不会用笛卡尔积（这里的employee_projects就是笛卡尔积经过去重等操作的结果），这里只关心能不能剔除减数部分。</p>
 <p>第三层也就是总公式，对应所有代码。</p>
+<h3>总结</h3>
+<p>除法的关系代数层面含义是：
+给定集合R及它的一个子集S，R-S中能取到S中所有值的元组组成的集合叫$R \div S$
+除法在sql语句层面的含义是：
+现在往往有三个表A,B,C，C的主键是由A,B的主键组成的，当我们想要检索能够取到全部B的值的A中的元组时，实际上就是在做除法，此时要套用一个固定结构：</p>
+<pre><code>select a1,a2,...(A中需要的属性)
+from A at
+where not exists(
+    select 1
+    from B bt
+    where not exists(
+        select 1
+        from C ct
+        where bt.keyB = ct.keyB
+        and at.keyA = ct.keyA
+    )
+)
+</code></pre>
+<p>而且由于主键不重复，所以该程序往往还可以写成：</p>
+<pre><code>create view AllNum as
+(select count(B.keyB) as num
+ from B);
+select a1,a2,...(A中需要的属性)
+from A
+join C ct
+on ct.keyA = A.keyA 
+group by a1,a2,...(与select部分一致)
+having count(ct.keyB) = (
+    select num 
+    from AllNum
+);
+</code></pre>
+<p>where里是不让用聚集函数的，所以必须放在having里。</p>
+<p>以上两种写法，效率上前者劣于后者，但是如果只允许使用一条语句，必须使用前者。</p>
 <h2>连接</h2>
 <p>在数据库中，连接（Join）是一种操作，它用于结合两个或多个表中根据相关列之间的关系的行。SQL 中有几种不同类型的连接操作：  </p>
 <ol>
